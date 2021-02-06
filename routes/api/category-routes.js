@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const { Category, Product } = require('../../models');
 
-// The `/api/categories` endpoint
+// The `/api/category` endpoint
 
 router.get('/', (req, res) => {
   // find all categories
@@ -20,13 +20,31 @@ router.get('/:id', (req, res) => {
   // be sure to include its associated Products
 
   Category.findOne({
-    //figure this whole thingy out and maybe the one above as well
+    where: {
+      id: req.params.id
+    }
   })
+    .then(dbCategoryData => {
+      if (!dbCategoryData) {
+        res.status(404).json({ message: 'No user found with this id' });
+        return;
+      }
+      res.json(dbCategoryData);
+    })
+    .catch(err => {
+      console.log(err);
+      res.status(500).json(err);
+  });
 });
 
 router.post('/', (req, res) => {
   Category.create({
-    //sections of this model that im posting
+    category_name: req.body.category_name
+  })
+    .then(dbCategoryData => res.json(dbCategoryData))
+    .catch(err => {
+      console.log(err);
+      res.status(500).json(err);
   })
     .then(dbCategoryData => res.json(dbCategoryData))
     .catch(err => {
@@ -37,7 +55,22 @@ router.post('/', (req, res) => {
 
 router.put('/:id', (req, res) => {
   // update a category by its `id` value 
-  Category.update()
+  Category.update({
+    where: {
+      id: req.params.id
+    }
+  })
+    .then(dbCategoryData => {
+      if (!dbCategoryData[0]) {
+        res.status(404).json({ message: 'No user found with this id' });
+        return;
+      }
+      res.json(dbCategoryData);
+    })
+    .catch(err => {
+      console.log(err);
+      res.status(500).json(err);
+  })
 });
 
 router.delete('/:id', (req, res) => {
